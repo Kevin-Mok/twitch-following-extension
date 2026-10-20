@@ -1,0 +1,1 @@
+{"name":"twitch-following-extension","version":"0.1.0","private":true,"type":"module","scripts":{"test":"node --test","check":"node --check src/background.js && node --check src/content.js && node --check src/dom.js && node --check src/options.js"},"devDependencies":{"jsdom":"^25.0.1"}}

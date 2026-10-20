@@ -1,0 +1,54 @@
+# Twitch Following verification
+
+This record separates observed Chrome behavior from deterministic fixtures and checks requiring your Twitch account. Load the extension, register the exact callback shown in setup, authorize, then run the grouped checks in [smoke-tests.md](smoke-tests.md).
+
+## Observed evidence — 2026-10-20
+
+| Surface | Observed result | Boundary |
+| --- | --- | --- |
+| Visual references | Both supplied screenshots reviewed; Twitch's existing cards/menu guide the styles. | Screenshots alone do not prove the extension matches. |
+| Current Twitch DOM | Live Fortnite inspected in Chrome: `#browse-sort-drop-down`, `#browse-sort-drop-down-list` with listbox/options, `[data-target="directory-container"]`, and `game-directory-live-tab`. | English desktop UI, logged out. |
+| Filters | Selecting English left the URL unchanged and saved `languageDirectoryFilters=["en"]`; a stream-tag click set `tl=English`. Category tags appear as `/directory/tags/…` header links. | Reading these inputs is verified; full filtered-follow parity is not. |
+| Unpacked extension | Chrome 146.0.7680.177 loaded the actual source directory using DevTools' extension loader in a temporary profile. | No personal browser profile, token, or account used. |
+| Setup | Options page reached “Not connected” and generated the exact `https://<extension-id>.chromiumapp.org/` callback. | Registration and OAuth approval not performed. |
+| Menu/state | Exactly one Following option appeared. Dispatched End/Enter keyboard events focused and selected it; trigger displayed Following and the panel displayed reconnect guidance. | Tests exercise the handlers; full physical-key/screen-reader acceptance remains manual. |
+| Restoration | Reopening the menu and selecting Viewers (High to Low) removed the extension panel, removed hidden-grid markers, restored the native label, and left native cards visible. | Full scrolling, native recommendations, and all sort/tab combinations are still manual. |
+| Card renderer | Imported the actual `makeCard` module on live Twitch with six explicitly labeled fixtures, public thumbnails/avatars, and synthetic counts. Inspected light/dark screenshots at 1440 px; Twitch's own Dark Theme control changed text/background correctly. | Renderer preview only, not an authenticated Following snapshot. Channel hrefs were inspected, not followed. |
+| Responsive cards | Active-tab resizing measured 4/3/2/1 columns at 1440/1280/768/390 px, with no panel overflow. Inspected the narrow dark screenshot and long-title/avatar-fallback behavior. | Intermediate/narrow checks used dark theme; the full two-theme matrix remains manual. Twitch's native sort toolbar clips at 390 px. |
+
+Chrome reported Twitch-origin GraphQL integrity and GPU warnings. The checked logged-out extension path completed; these warnings do not establish that Twitch's entire feed is healthy. Screenshots are local ignored artifacts under `artifacts/`, not required extension assets.
+
+## Automated checks
+
+Final run: `npm test` — **60 tests passed, 0 failed, exit 0**; `npm run check` — **exit 0**. All manifest file references and local README/smoke-check links resolve. Tests use synthetic responses and markup; they do not authorize Twitch or prove all current DOM behavior. The launcher fixture requires process spawning, which the restricted namespace denied; the complete suite passed outside that namespace.
+
+- Core fixtures: every cursor page, duplicate broadcasters, another category, numeric 7,500 → 689 → 94 ordering, login ties, language/tag/category-tag filters, empty results, malformed responses, page failure, repeated cursors, and 100-ID avatar batches.
+- Authorization/worker fixtures: callback/state/identity/sender boundaries, no tokens in replies, missing/expired/revoked credentials, safe API errors, all-or-nothing pagination, and interleavings of credential reads/writes, Connect, Disconnect, validation, and account notifications.
+- DOM fixtures: menu recreation, keyboard selection, text-safe rendering/channel links, persisted filters, category verification, stale results, tab exit, native restoration, React panel removal, and query-only/browser-history changes.
+- Launcher fixture: each verification action opens its intended browser URL; unknown actions fail with usage.
+
+Defining tests were observed failing before the corresponding fixes. The deeper review reproduced six credential races and three additional DOM lifecycle bugs; their regressions pass after the changes. See [runtime findings](postmortem/2026-10-20-unpacked-runtime.md).
+
+Independent final review rechecked the credential fixes and message/storage/callback boundaries, and reran the 24 worker, 3 authorization, and 15 lifecycle cases successfully. The subsequent fresh unpacked Chrome run again showed one Following entry, reconnect guidance, and complete native-grid unhide/restoration (27 native cards present).
+
+## Direct browser checks
+
+Working directory: the cloned repository root. No sudo. These launch real Chrome pages and print the next manual action; launching a page alone does not pass the check. `google-chrome` must be installed (or set `TWITCH_VERIFY_BROWSER`).
+
+`./scripts/open-verification.sh install` opens Extensions. Load this folder unpacked, open setup, register its callback, and connect. Expected: the connected login is shown after authorization.
+
+`./scripts/open-verification.sh fortnite` opens Fortnite. Select Following, compare your category-matching live follows and viewer order, change filters, then select a native sort. Expected: correct followed cards, then native feed restoration.
+
+`./scripts/open-verification.sh navigation` opens Just Chatting. Select Following, navigate categories while loading, use Back/Forward and Videos/Clips. Expected: no old-category cards, duplicates, or hidden native grids on tab/sort exit.
+
+## Prepared or blocked acceptance
+
+No public client ID or user authorization was available. Real OAuth approval/cancellation, reconnect/expiry/revocation, multiple accounts, all live followed pages, authenticated card links, empty results, language/tag parity, and real API rate-limit/network failures remain unverified. Run [the exact Action/Expected checklist](smoke-tests.md) with your own app/account; do not share an access token or client secret.
+
+Complete the account-backed card comparison at 390, 768, 1280 and 1440 px in both themes. The observed renderer preview establishes the layout/theme behavior listed above, but cannot establish that the correct authenticated channels were retrieved.
+
+The recommendation tail is intentionally omitted under the accepted following-only MVP fallback. Its native loading/scrolling/rerendering/deduplication/restoration gate has not passed; no replacement recommendation algorithm or private API is used. English UI and recognizable category slugs are the supported integration scope; unsupported shapes retain the native feed.
+
+## Reproduce and rollback
+
+Use Node 22+, install development dependencies with `npm ci`, then run `npm test` and `npm run check`. Chrome loads the source directory directly; no build step or backend is involved. Disable/remove the extension and reload Twitch to roll back. The initial implementation used a sandbox with a protected empty Git placeholder. The subsequent public-repository delivery is recorded in [the publication plan](../plans/publish-github.md).

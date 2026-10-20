@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Twitch Category Following",
+  "version": "0.1.0",
+  "description": "Show all live follows in a Twitch category, sorted by viewers.",
+  "minimum_chrome_version": "120",
+  "permissions": ["storage", "identity", "alarms"],
+  "host_permissions": ["https://api.twitch.tv/*", "https://id.twitch.tv/*"],
+  "background": {"service_worker": "src/background.js", "type": "module"},
+  "action": {"default_title": "Connect Twitch Following", "default_popup": "options.html"},
+  "options_page": "options.html",
+  "content_scripts": [{"matches": ["https://www.twitch.tv/*"], "js": ["src/content.js"], "css": ["src/content.css"], "run_at": "document_idle"}],
+  "web_accessible_resources": [{"resources": ["src/dom.js", "src/core.js"], "matches": ["https://www.twitch.tv/*"]}]
+}
