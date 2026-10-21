@@ -7,15 +7,16 @@ import * as core from '../src/core.js';
 const html=`<!doctype html><html lang="en"><body><main><h1>Fortnite</h1><nav role="tablist"><a role="tab" aria-selected="true">Live Channels</a></nav><button aria-haspopup="menu" aria-expanded="true">Recommended For You</button><div role="menu"><button role="menuitemradio">Recommended For You</button><button role="menuitemradio">Viewers (High to Low)</button><button role="menuitemradio">Recently Started</button></div><div id="native"><div data-target="directory-page__card-container"><article><a data-a-target="preview-card-image-link" href="/native">Native</a></article></div></div></main></body></html>`;
 const stream={user_id:'1',user_login:'safe_channel',user_name:'Safe',game_id:'10',viewer_count:7500,title:'<img src=x onerror=alert(1)>',thumbnail_url:'https://static-cdn.jtvnw.net/previews/live_user_safe-{width}x{height}.jpg',language:'en',tags:['English','Ranked']};
 const delay=()=>new Promise(resolve=>setTimeout(resolve,130));
-async function fixture(snapshot=()=>Promise.resolve({ok:true,streams:[stream],avatars:{},gameId:'10'})){
+async function fixture(snapshot=()=>Promise.resolve({ok:true,streams:[stream],avatars:{},gameId:'10'}), storage={followingSort:'native'}, setup=()=>{}){
  const page=new JSDOM(html,{url:'https://www.twitch.tv/directory/category/fortnite?sort=RELEVANCE',runScripts:'outside-only'});
  const win=page.window;Object.assign(globalThis,{document:win.document,location:win.location});
  const messages=[];const listeners=[];
  win.fixtureDom=dom;win.fixtureCore=core;
+ if(storage.followingSort!==undefined)win.localStorage.setItem('tfFollowingSort',storage.followingSort);
  win.chrome={runtime:{getURL:path=>path,onMessage:{addListener:fn=>listeners.push(fn)},sendMessage:message=>{messages.push(message);return message.type==='snapshot'?snapshot(message):Promise.resolve({ok:true});}}};
  let source=await readFile(new URL('../src/content.js',import.meta.url),'utf8');
  source=source.replace("await import(chrome.runtime.getURL('src/dom.js'))",'window.fixtureDom').replace("await import(chrome.runtime.getURL('src/core.js'))",'window.fixtureCore');
- win.eval(source);await delay();
+ setup(win);win.eval(source);await delay();
  return {page,win,doc:win.document,messages,listeners};
 }
 test('menu once, cards safe, keyboard and native restoration',async()=>{
@@ -63,7 +64,7 @@ test('keyboard navigation within the sort menu does not trigger Twitch blur dism
   const trigger=f.doc.querySelector('[aria-haspopup]');const menu=f.doc.querySelector('[role=menu]');
   trigger.addEventListener('focusout',()=>menu.remove());
   trigger.focus();
-  trigger.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}));
+  trigger.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));
   f.doc.activeElement?.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
   await delay();
   assert.equal(f.messages.filter(message=>message.type==='snapshot').length,1);
@@ -138,7 +139,7 @@ test('observed Twitch listbox options and directory container are supported',asy
   assert.equal(own.getAttribute('aria-selected'),'true');
   assert.equal(menu.querySelector('[aria-selected=true]'),own);
   assert.equal(menu.dataset.tfMode,'following');
-  const trigger=f.doc.querySelector('[aria-haspopup]');trigger.focus();trigger.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}));
+  const trigger=f.doc.querySelector('[aria-haspopup]');trigger.focus();trigger.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));
   assert.equal(f.doc.activeElement,own);
  }finally{f.page.window.close();}
 });
@@ -211,5 +212,50 @@ test('query-only History API changes update local filters without a page mutatio
   await new Promise(resolve=>setTimeout(resolve,700));
   assert.match(f.doc.querySelector('.tf-panel').textContent,/No live followed/);
   assert.equal(f.messages.filter(message=>message.type==='snapshot').length,1);
+ }finally{f.page.window.close();}
+});
+
+test('Following is first and activates on a fresh category load without opening the menu',async()=>{
+ const f=await fixture(undefined,{});try{
+  const own=f.doc.querySelector('[data-tf-following]');
+  assert.equal(own.parentElement.firstElementChild,own);
+  assert.equal(f.doc.querySelector('[aria-haspopup]').textContent,'Following');
+  assert.equal(f.doc.querySelectorAll('.tf-card').length,1);
+  assert.equal(f.messages.filter(m=>m.type==='snapshot').length,1);
+  own.focus();own.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}));
+  assert.equal(f.doc.activeElement.textContent,'Recommended For You');
+ }finally{f.page.window.close();}
+});
+test('sort choice survives reloads and a native choice stays restored',async()=>{
+ const storage={followingSort:'native'};
+ let f=await fixture(undefined,storage);
+ try{assert.equal(f.doc.querySelector('.tf-panel'),null);f.doc.querySelector('[data-tf-following]').click();await delay();storage.followingSort=f.win.localStorage.getItem('tfFollowingSort');}
+ finally{f.page.window.close();}
+ f=await fixture(undefined,storage);
+ try{
+  assert.equal(f.doc.querySelectorAll('.tf-card').length,1);
+  f.doc.querySelector('[role=menuitemradio]:not([data-tf-following])').click();await delay();
+  assert.equal(f.doc.querySelector('.tf-panel'),null);
+  storage.followingSort=f.win.localStorage.getItem('tfFollowingSort');
+ }finally{f.page.window.close();}
+ f=await fixture(undefined,storage);
+ try{assert.equal(f.doc.querySelector('.tf-panel'),null);assert.equal(f.doc.querySelector('.tf-native-hidden'),null);}
+ finally{f.page.window.close();}
+});
+test('saved Following resumes after returning to Live Channels',async()=>{
+ const f=await fixture(undefined,{followingSort:'following'});try{
+  f.doc.querySelector('[role=tab]').textContent='Videos';await delay();
+  assert.equal(f.doc.querySelector('.tf-panel'),null);
+  f.doc.querySelector('[role=tab]').textContent='Live Channels';await delay();
+  assert.equal(f.doc.querySelectorAll('.tf-card').length,1);
+ }finally{f.page.window.close();}
+});
+
+test('default Following waits for Twitch to mount its live grid',async()=>{
+ let native;
+ const f=await fixture(undefined,{},win=>{native=win.document.querySelector('#native');native.remove();});try{
+  f.doc.querySelector('main').append(native);await delay();
+  assert.equal(f.doc.querySelectorAll('.tf-card').length,1);
+  assert.equal(f.messages.filter(m=>m.type==='snapshot').length,1);
  }finally{f.page.window.close();}
 });

@@ -38,7 +38,7 @@ Load the unpacked extension, connect a registered public Twitch application, and
 
 **Action:** Change categories during loading; use back/forward, including two native sort URLs for the same category; select Videos/Clips; return to Live Channels; force Twitch to replace the native grid or remove only the Following panel.
 
-**Expected:** Old category results never overwrite the new page. Other tabs/native sorts restore the untouched native grid and label; choose Following again after returning from Videos/Clips. Following reattaches without duplicate panels; route and heading must agree before fetching. Same-category sort history exits Following; filter-only history reuses its snapshot.
+**Expected:** Old category results never overwrite the new page. Other tabs/native sorts restore the untouched native grid and label; the saved Following preference resumes after returning from Videos/Clips. Following reattaches without duplicate panels; route and heading must agree before fetching. Same-category sort history exits Following; filter-only history reuses its snapshot.
 
 **Action:** Select each native sort after Following, then scroll/load more. Repeat with extension disabled/uninstalled and reload.
 
@@ -63,3 +63,9 @@ Load the unpacked extension, connect a registered public Twitch application, and
 **Action:** Install the approved test release from its store page in a clean profile, repeat the menu/account checks above, and test updating an existing installation of the same item.
 
 **Expected:** Store-installed authorization and native restoration pass independently of unpacked previews. The extension ID remains the same; stored settings and credentials are preserved or migrated according to the documented credential design, and any required reconnection is explained. Record the tested version and result before public launch.
+
+## Default and remembered sorting
+
+**Action:** With no saved `tfFollowingSort` preference in Twitch site storage, refresh Fortnite Live Channels. Open the sort menu; use Home, ArrowDown and Enter. Choose a native sort and reload, then choose Following and reload again. Repeat in another category and after Videos/Clips.
+
+**Expected:** Following appears first and activates by default without opening the menu. Home reaches Following; ArrowDown reaches Recommended For You. Native selection restores Twitch and persists across reloads. Choosing Following persists and resumes on category/Live Channels visits, with cards or actionable connection guidance. Clearing Twitch site data resets the default.

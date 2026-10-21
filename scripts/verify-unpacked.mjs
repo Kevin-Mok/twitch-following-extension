@@ -58,7 +58,7 @@ try {
  await evaluate(`document.querySelector('#browse-sort-drop-down').scrollIntoView({block:'center'});document.querySelector('#browse-sort-drop-down').click()`);
  for(let i=0;i<50;i++){found=await evaluate(`Boolean(document.querySelector('[data-tf-following]'))`);if(found)break;await pause(100);}
  assert.equal(found,true,'Actual content script did not inject Following');
- const geometry=await evaluate(`(()=>{const e=document.querySelector('[data-tf-following]'),a=e.querySelector('svg').getBoundingClientRect(),n=e.previousElementSibling.querySelector('svg').getBoundingClientRect();return {count:document.querySelectorAll('[data-tf-following]').length,display:getComputedStyle(e).display,left:a.x-n.x,width:a.width-nativeWidth(n),rowHeight:e.getBoundingClientRect().height};function nativeWidth(r){return r.width;}})()`);
+ const geometry=await evaluate(`(()=>{const e=document.querySelector('[data-tf-following]'),a=e.querySelector('svg').getBoundingClientRect(),n=e.nextElementSibling.querySelector('svg').getBoundingClientRect();return {count:document.querySelectorAll('[data-tf-following]').length,display:getComputedStyle(e).display,left:a.x-n.x,width:a.width-nativeWidth(n),rowHeight:e.getBoundingClientRect().height};function nativeWidth(r){return r.width;}})()`);
  assert.equal(geometry.count,1);assert.equal(geometry.display,'flex');assert.equal(geometry.left,0);assert.equal(geometry.width,0);
  await pause(1200);
  const menuShot=await call('Page.captureScreenshot',{format:'png'},sessionId);

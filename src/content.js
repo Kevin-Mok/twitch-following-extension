@@ -4,6 +4,12 @@
   let selected=false, route=null, request=0, snapshot=null, panel=null, grid=null, filterKey='', pending=false;
   let waitingCategory=false, rememberedLanguages=null, observedHref=location.href, nativeSort=null;
   const currentSort=()=>new URL(location.href).searchParams.get('sort') || 'RELEVANCE';
+  let preferFollowing=true;
+  try{preferFollowing=localStorage.getItem('tfFollowingSort')!=='native';}catch{console.warn('Following cannot read the saved sort preference; using Following by default.');}
+  function rememberSort(following) {
+    preferFollowing=following;
+    try{localStorage.setItem('tfFollowingSort',following?'following':'native');}catch{console.warn('Following cannot save the sort preference; this choice lasts until reload.');}
+  }
   const nativeSelections=new Map(), nativeTabindices=new Map(), markedMenus=new Set();
   function restoreSelections() {for(const [node,value] of nativeSelections){if(value===null)node.removeAttribute('aria-selected');else node.setAttribute('aria-selected',value);}nativeSelections.clear();for(const [node,value] of nativeTabindices){if(value===null)node.removeAttribute('tabindex');else node.setAttribute('tabindex',value);}nativeTabindices.clear();for(const menu of markedMenus)delete menu.dataset.tfMode;markedMenus.clear();}
   function liveTab() {
@@ -80,8 +86,11 @@
   function choose(event) {
     event.preventDefault();event.stopPropagation();
     if(!liveTab())return;
-    selected=true;route=categoryRoute(location.href);nativeSort=currentSort();updateLabel();
-    sortControl()?.click();sortControl()?.focus();fetchSnapshot();
+    rememberSort(true);startFollowing();
+    sortControl()?.click();sortControl()?.focus();
+  }
+  function startFollowing() {
+    selected=true;route=categoryRoute(location.href);nativeSort=currentSort();updateLabel();fetchSnapshot();
   }
   function integrateMenu() {
     const choices=sortChoices(); if(choices.length<2)return;
@@ -95,7 +104,7 @@
       item.append(icon,document.createTextNode('Following'));
       // Keep Twitch's combobox focused so its blur handler cannot close before click.
       item.addEventListener('mousedown',event=>{if(event.button===0)event.preventDefault();});
-      item.addEventListener('click',choose);choices[0].parentElement.append(item);
+      item.addEventListener('click',choose);choices[0].before(item);
     }
     const attr=listbox?'aria-selected':'aria-checked';const value=String(selected);if(item.getAttribute(attr)!==value)item.setAttribute(attr,value);
     if(selected && listbox){listbox.dataset.tfMode='following';markedMenus.add(listbox);}
@@ -106,7 +115,8 @@
     scheduled=false;observedHref=location.href;
     const next=categoryRoute(location.href);
     if(!next || !liveTab()){if(selected || panel)stop();document.querySelector('[data-tf-following]')?.remove();rememberedLanguages=null;return;}
-    if(selected && route===next && nativeSort!==currentSort())stop();
+    if(selected && route===next && nativeSort!==currentSort()){rememberSort(false);stop();}
+    if(!selected && preferFollowing && liveGrid())startFollowing();
     if(selected && route!==next){request++;snapshot=null;pending=false;restoreGrid();route=next;nativeSort=currentSort();fetchSnapshot();}
     if(selected && waitingCategory && categoryMatchesRoute(categoryName(),next))fetchSnapshot();
     filters();
@@ -124,13 +134,13 @@
   },true);
   document.addEventListener('click',event=>{
     const target=event.target instanceof Element ? event.target.closest('button, [role="menuitem"], [role="menuitemradio"], [role="option"]') : null;
-    if(selected && target && !target.closest('[data-tf-following]') && sortChoices().includes(target))stop();
+    if(selected && target && !target.closest('[data-tf-following]') && sortChoices().includes(target)){rememberSort(false);stop();}
     if(event.target instanceof Element && event.target.closest('a[href*="/videos"], a[href*="/clips"]'))stop();
     schedule();
   },true);
   document.addEventListener('keydown',event=>{
     const choices=sortChoices();const own=document.querySelector('[data-tf-following]');if(!own)return;
-    const all=[...choices,own];const index=all.indexOf(document.activeElement);const control=sortControl();
+    const all=[own,...choices];const index=all.indexOf(document.activeElement);const control=sortControl();
     if(index<0 && document.activeElement!==control)return;
     if(['Enter',' '].includes(event.key) && index>=0){event.preventDefault();event.stopPropagation();all[index].click();return;}
     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();control?.click();control?.focus();return;}
