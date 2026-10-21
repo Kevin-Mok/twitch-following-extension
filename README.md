@@ -17,7 +17,7 @@ A small Manifest V3 Chrome extension for viewers who want their live follows in 
 2. Open the extension’s toolbar popup or Details → Extension options. Copy the generated redirect URL.
 3. In the [Twitch developer console](https://dev.twitch.tv/console/apps), register an app with **Public** client type, a suitable application category, and that **exact** OAuth redirect URL, including its trailing slash. Never put a client secret in the extension. Twitch may require developer-account two-factor authentication.
 4. Paste the public client ID into the extension and choose **Connect Twitch**. Approve `user:read:follows` in Twitch’s authorization window. The setup shows the connected account.
-5. Reload an already open Twitch tab after loading or updating the extension. Open a category’s **Live Channels** tab and select **Sort by → Following**. Choose another native sort to restore Twitch’s feed.
+5. After local source changes, click **Reload (↻)** on the extension in `chrome://extensions`; there is no automatic reload watcher. After installation or extension reload, refresh the Twitch tab. Open a category’s **Live Channels** tab and select **Sort by → Following**. Choose another native sort to restore Twitch’s feed.
 
 The callback has the form `https://<extension-id>.chromiumapp.org/`. Use the generated value, not this placeholder. An unpacked extension ID can change across installations or when its directory moves; update the Twitch app’s registered callback when that happens. A callback mismatch must be corrected in registration before retrying.
 
@@ -29,6 +29,7 @@ Implicit OAuth has no refresh token. Use **Reconnect Twitch** after expiry, revo
 - Twitch’s paginated lists change while being read. The extension processes every returned page and deduplicates, but cannot promise a single atomic view of all live follows. Select Following again for a new snapshot. See [Twitch’s pagination guide](https://dev.twitch.tv/docs/api/guide/).
 - Filters by category ID resolved through official Get Games, deduplicates by broadcaster ID, sorts numeric viewers descending, then channel login ascending. Avatars use batched Get Users requests.
 - Each Following selection/category change loads a fresh snapshot. Supported local filter changes reuse it; no periodic stream refresh. Select Following again or Retry to refresh.
+- The Following menu row has a monochrome heart icon and supports mouse and keyboard selection; selecting it closes the dropdown.
 - **Following-only MVP:** Twitch’s recommendation tail is omitted. Its scrolling, deduplication, and restoration acceptance gate could not be verified.
 - Menu support targets the English UI shown in the supplied screenshots. The observed `#browse-sort-drop-down` listbox, directory container, and Live Channels tab selectors are isolated in `src/dom.js`. Twitch DOM/localization changes may prevent attachment; compatibility failures preserve the native feed and explain the problem.
 - Live inspection confirmed tag URLs (`tl=English`) and persisted language codes (`languageDirectoryFilters`), including a closed language menu. Fixture-backed fallbacks also recognize `lang`/`language` URL values and removable tag chips. Unreadable active filters or unknown URL parameters show a limitation instead of an unfiltered list.

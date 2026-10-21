@@ -14,9 +14,13 @@ Load the unpacked extension, connect a registered public Twitch application, and
 
 ## Menu, sorting, cards
 
-**Action:** On Fortnite Live Channels, open Sort by repeatedly; select Following using Tab/arrow keys/Enter, then Escape out of the menu. Repeat after Twitch recreates its menu.
+**Action:** After changing local extension files, open `chrome://extensions`, click Reload (the circular arrow) on Twitch Category Following, then refresh the Twitch category tab and open Sort by → Following. Keep Extensions pinned for repeated retests; this project has no automatic reload watcher.
 
-**Expected:** Exactly one Following item, visible focus, correct selected state in menu/control; native entries remain keyboard reachable. Loading, connection, retry and empty states are readable.
+**Expected:** The new heart icon appears, clicking Following closes the menu, and the control displays Following with cards or connection guidance. Refreshing Twitch alone does not reliably activate updated extension files; no browser restart or reinstall is needed.
+
+**Action:** On Fortnite Live Channels, open Sort by repeatedly; click Following's label and heart icon with a real mouse (not a scripted click). Then select it using Tab/arrow keys/Enter, and Escape out of the menu. Repeat after Twitch recreates its menu and in both themes.
+
+**Expected:** Exactly one Following item with a matching monochrome heart. Mouse selection closes the dropdown, changes the control to Following, and displays cards or a connection state. Visible keyboard focus and selected state remain correct; native entries remain keyboard reachable. Loading, connection, retry and empty states are readable.
 
 **Action:** With a live follow list exceeding one API page, compare against all official API pages. Include channels absent from the sidebar; check viewer counts 94, 7,500 and 689, equal-viewer logins, duplicate broadcasters and a channel in another game.
 

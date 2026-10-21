@@ -36,6 +36,40 @@ test('menu once, cards safe, keyboard and native restoration',async()=>{
   assert.equal(f.doc.querySelector('[aria-haspopup]').textContent,'Recommended For You');
  }finally{f.page.window.close();}
 });
+test('pointer selection preserves combobox focus until Following closes the menu',async()=>{
+ const f=await fixture();try{
+  const trigger=f.doc.querySelector('[aria-haspopup]');const menu=f.doc.querySelector('[role=menu]');
+  const own=f.doc.querySelector('[data-tf-following]');
+  const icon=own.querySelector('svg');
+  assert.equal(icon?.getAttribute('aria-hidden'),'true');
+  assert.equal(icon.getAttribute('focusable'),'false');
+  trigger.focus();
+  trigger.addEventListener('blur',()=>{menu.remove();trigger.setAttribute('aria-expanded','false');});
+  trigger.addEventListener('click',()=>{menu.remove();trigger.setAttribute('aria-expanded','false');});
+  const down=new f.win.MouseEvent('mousedown',{button:0,bubbles:true,cancelable:true});
+  // Model the browser's default focus transfer before mouseup/click.
+  if(icon.dispatchEvent(down))own.focus();
+  if(own.isConnected)icon.dispatchEvent(new f.win.MouseEvent('click',{bubbles:true,cancelable:true}));
+  await delay();
+  assert.equal(f.messages.filter(message=>message.type==='snapshot').length,1);
+  assert.equal(trigger.textContent,'Following');
+  assert.equal(trigger.getAttribute('aria-expanded'),'false');
+  assert.equal(f.doc.activeElement,trigger);
+  assert.equal(f.doc.querySelectorAll('.tf-card').length,1);
+ }finally{f.page.window.close();}
+});
+test('keyboard navigation within the sort menu does not trigger Twitch blur dismissal',async()=>{
+ const f=await fixture();try{
+  const trigger=f.doc.querySelector('[aria-haspopup]');const menu=f.doc.querySelector('[role=menu]');
+  trigger.addEventListener('focusout',()=>menu.remove());
+  trigger.focus();
+  trigger.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}));
+  f.doc.activeElement?.dispatchEvent(new f.win.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+  await delay();
+  assert.equal(f.messages.filter(message=>message.type==='snapshot').length,1);
+  assert.equal(trigger.textContent,'Following');
+ }finally{f.page.window.close();}
+});
 test('navigation during retrieval cannot paint the old category',async()=>{
  let resolve;const f=await fixture(()=>new Promise(done=>{resolve=done;}));try{
   f.doc.querySelector('[data-tf-following]').click();await delay();

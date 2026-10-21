@@ -89,7 +89,13 @@
     const listbox=choices[0].closest('[role="listbox"]');
     if(!item){
       item=document.createElement(listbox?'li':'button');if(!listbox)item.type='button';item.dataset.tfFollowing='';item.className=choices.find(node=>node.getAttribute('aria-selected')!=='true')?.className || choices[0].className;
-      item.setAttribute('role',listbox?'option':'menuitemradio');item.tabIndex=0;item.textContent='Following';item.addEventListener('click',choose);choices[0].parentElement.append(item);
+      item.setAttribute('role',listbox?'option':'menuitemradio');item.tabIndex=0;
+      const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');icon.setAttribute('focusable','false');
+      const heart=document.createElementNS('http://www.w3.org/2000/svg','path');heart.setAttribute('d','M12 20.5 3.8 12.3a5.5 5.5 0 0 1 7.8-7.8l.4.4.4-.4a5.5 5.5 0 0 1 7.8 7.8Z');icon.append(heart);
+      item.append(icon,document.createTextNode('Following'));
+      // Keep Twitch's combobox focused so its blur handler cannot close before click.
+      item.addEventListener('mousedown',event=>{if(event.button===0)event.preventDefault();});
+      item.addEventListener('click',choose);choices[0].parentElement.append(item);
     }
     const attr=listbox?'aria-selected':'aria-checked';const value=String(selected);if(item.getAttribute(attr)!==value)item.setAttribute(attr,value);
     if(selected && listbox){listbox.dataset.tfMode='following';markedMenus.add(listbox);}
@@ -112,6 +118,10 @@
     }
   }
   const schedule=()=>{if(!scheduled){scheduled=true;setTimeout(sync,80);}};
+  document.addEventListener('focusout',event=>{
+    const next=event.relatedTarget;
+    if(event.target===sortControl() && next instanceof Element && (next.matches('[data-tf-following]') || sortChoices().includes(next)))event.stopPropagation();
+  },true);
   document.addEventListener('click',event=>{
     const target=event.target instanceof Element ? event.target.closest('button, [role="menuitem"], [role="menuitemradio"], [role="option"]') : null;
     if(selected && target && !target.closest('[data-tf-following]') && sortChoices().includes(target))stop();

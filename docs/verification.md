@@ -31,6 +31,14 @@ Defining tests were observed failing before the corresponding fixes. The deeper 
 
 Independent final review rechecked the credential fixes and message/storage/callback boundaries, and reran the 24 worker, 3 authorization, and 15 lifecycle cases successfully. The subsequent fresh unpacked Chrome run again showed one Following entry, reconnect guidance, and complete native-grid unhide/restoration (27 native cards present).
 
+## Pointer and icon repair — 2026-10-21
+
+The focus regressions failed with zero snapshot requests before repair. Final checks: `npm test` **62 passed, 0 failed**, and `npm run check` exited 0. Independent review found a selected-hover contrast issue, corrected by limiting hover styles to unselected rows; the final review found no remaining actionable issue.
+
+On live Twitch in isolated Chrome, the current content source/CSS was injected with a synthetic disconnected runtime (no extension credentials or API requests). A genuine accessibility-UID mouse click reproduced focus loss and menu reopening before repair. Preserving primary-mousedown focus made selection display Following, close the menu (`aria-expanded=false`), retain trigger focus, and display the fixture connection state. Physical End/Enter exposed the same dismissal on keyboard focus transfer; the scoped focusout guard then kept the option focused until Enter selected Following and closed the menu. The heart measures 24×24 px, is decorative/non-focusable, and was visually inspected in the light menu. Selected hover resolves to purple `rgb(145,71,255)` with white text. Reopening produces exactly one option.
+
+Native restoration through a DOM click on Viewers (High to Low) showed the native label, no extension panel, and zero hidden-grid markers. A native accessibility-UID lookup was unavailable in that modal snapshot, so this restoration check uses its DOM click handler rather than claiming genuine native mouse input. Full account-backed behavior, touch, screen readers, dark-theme visual acceptance, and fresh unpacked-extension activation remain manual. Reload the extension in `chrome://extensions` and then reload the Twitch tab to activate these local source changes.
+
 ## Direct browser checks
 
 Working directory: the cloned repository root. No sudo. These launch real Chrome pages and print the next manual action; launching a page alone does not pass the check. `google-chrome` must be installed (or set `TWITCH_VERIFY_BROWSER`).
