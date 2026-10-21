@@ -60,3 +60,16 @@ The recommendation tail is intentionally omitted under the accepted following-on
 ## Reproduce and rollback
 
 Use Node 22+, install development dependencies with `npm ci`, then run `npm test` and `npm run check`. Chrome loads the source directory directly; no build step or backend is involved. Disable/remove the extension and reload Twitch to roll back. The initial implementation used a sandbox with a protected empty Git placeholder. The subsequent public-repository delivery is recorded in [the publication plan](../plans/publish-github.md).
+
+## Heart alignment — 2026-10-21
+
+Atomic fix: reproduce the CSS collision, strengthen the owned row selector, match native geometry, then check the recreated menu and regression suite. Only menu CSS changes; mouse/keyboard handlers are unchanged.
+
+- RED: with Twitch's `.eaHBmI { display:block }` loaded after the extension stylesheet, the row became block layout, its icon/text centers differed by 6.5 px, its icon was indented 6 px, and it used 24 px rather than native 20 px icons.
+- GREEN: loaded the updated source stylesheet into the existing live Twitch preview. The same later native rule left the row flex; center difference was 0.296875 px, left-edge difference 0 px, both icons 20 px, and both rows 28 px. Reopening the native menu left exactly one Following row with matching size/left edge.
+- Automated: Node v22.15.0, `npm test` passed 62 tests, 0 failed; `npm run check` passed. The first sandboxed test run could not spawn the launcher processes; the unrestricted rerun passed.
+- Scope: live preview CSS and English desktop menu geometry checked. Fresh unpacked-extension activation, physical keyboard/mouse acceptance, and the complete theme matrix remain manual. Reload the extension in `chrome://extensions`, refresh Twitch, then run the menu Action/Expected check in [smoke-tests.md](smoke-tests.md).
+- Cursor prompt: “Review the Following row in src/content.css against docs/smoke-tests.md. Confirm the heart and label share native menu alignment even when Twitch CSS loads later; preserve existing selection handlers.”
+- Suggested commit: `fix: align Following heart with native sort icons`.
+
+The [tooling incident](postmortem/2026-10-21-memory-search-option.md) records lookup and sandbox limitations encountered during verification. Rollback: revert the two menu CSS rules and reload the extension and Twitch.

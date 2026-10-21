@@ -1,10 +1,10 @@
 # Twitch Category Following
 
-A small Manifest V3 Chrome extension for viewers who want their live follows in the category they are browsing, including channels missing from Twitch’s sidebar. It adds **Following** to category sorting, retrieves every page through Twitch’s official API, and orders matching channels by viewers. The native feed returns when another sort is selected.
+A small Manifest V3 Chrome extension that helps viewers find their live follows in the category they are browsing, including channels missing from Twitch’s sidebar. It adds **Following** to category sorting, retrieves every page through Twitch’s official API, and orders matching channels by viewers. The native feed returns when another sort is selected.
 
 **Status:** runnable following-only MVP. The unpacked extension, setup, injected menu, keyboard event handling, connection state, and native-sort restoration were checked in Chrome against live Twitch. Authorization and real followed-channel cards still need your registered application/account. See the [verification record](docs/verification.md) for precise evidence and limits.
 
-## Tech stack and why chosen
+## Tech Stack and Why Chosen
 
 - **Manifest V3 / Chrome identity:** browser-managed authorization callbacks and a service worker for authorized requests; no backend or client secret.
 - **Plain JavaScript, CSS, DOM APIs:** Twitch already supplies the visual language; small isolated adapters avoid React internals and production dependencies.
@@ -23,7 +23,7 @@ The callback has the form `https://<extension-id>.chromiumapp.org/`. Use the gen
 
 Implicit OAuth has no refresh token. Use **Reconnect Twitch** after expiry, revocation, or a missing-scope error. Disconnect clears local authorization and attempts server-side revocation; if offline, revoke manually in Twitch’s Connections settings too. The Twitch site’s logged-in account can differ from the extension’s explicitly connected account.
 
-## Behavior and limits
+## Usage and limits
 
 - Fetches every followed-stream page; any failed page fails the snapshot. No sidebar scraping or private API requests.
 - Twitch’s paginated lists change while being read. The extension processes every returned page and deduplicates, but cannot promise a single atomic view of all live follows. Select Following again for a new snapshot. See [Twitch’s pagination guide](https://dev.twitch.tv/docs/api/guide/).
@@ -45,7 +45,7 @@ Implicit OAuth has no refresh token. Use **Reconnect Twitch** after expiry, revo
 
 Permissions: `storage` for authorization, `identity` for the OAuth callback, `alarms` for required hourly token validation. Host access is limited to Twitch API/auth endpoints; the content script runs only on `www.twitch.tv`. No analytics or backend.
 
-## Development and verification
+## Commands and verification
 
 Use Node 22 or newer. Install development dependencies with `npm ci`; jsdom is test-only. Run `npm test` and `npm run check`. There is no build step: Chrome loads the source files directly. `npm test` includes deterministic retrieval/auth/worker fixtures and simulated DOM lifecycle tests; simulated markup does **not** prove compatibility with current Twitch.
 

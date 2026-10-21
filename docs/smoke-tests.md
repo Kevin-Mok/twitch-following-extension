@@ -20,7 +20,7 @@ Load the unpacked extension, connect a registered public Twitch application, and
 
 **Action:** On Fortnite Live Channels, open Sort by repeatedly; click Following's label and heart icon with a real mouse (not a scripted click). Then select it using Tab/arrow keys/Enter, and Escape out of the menu. Repeat after Twitch recreates its menu and in both themes.
 
-**Expected:** Exactly one Following item with a matching monochrome heart. Mouse selection closes the dropdown, changes the control to Following, and displays cards or a connection state. Visible keyboard focus and selected state remain correct; native entries remain keyboard reachable. Loading, connection, retry and empty states are readable.
+**Expected:** Exactly one Following item with a matching monochrome heart, centered beside its label. Its icon size, left edge, label gap, and row height match the native entries, including after Twitch loads styles or recreates the menu. Mouse selection closes the dropdown, changes the control to Following, and displays cards or a connection state. Visible keyboard focus and selected state remain correct; native entries remain keyboard reachable. Loading, connection, retry and empty states are readable.
 
 **Action:** With a live follow list exceeding one API page, compare against all official API pages. Include channels absent from the sidebar; check viewer counts 94, 7,500 and 689, equal-viewer logins, duplicate broadcasters and a channel in another game.
 
