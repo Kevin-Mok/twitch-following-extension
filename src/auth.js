@@ -28,6 +28,7 @@ export function allowedMessage(message, sender, extensionId) {
     case 'status': return keys === 'type';
     case 'connect': return setup && keys === 'clientId,type' && typeof message.clientId === 'string' && /^[a-zA-Z0-9]{3,100}$/.test(message.clientId);
     case 'disconnect': return setup && keys === 'type';
+    case 'pollAuthorization': return setup && keys === 'type';
     case 'openOptions': return content && keys === 'type';
     case 'snapshot': return content && keys === 'category,type' && typeof message.category === 'string' && message.category.trim().length > 0 && message.category.length <= 200;
     default: return false;

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Following heart and category list</title>
+  <rect x="16" y="16" width="96" height="96" rx="23" fill="#9147ff"/>
+  <path d="M49 83 30 64C16 49 37 34 49 48 61 34 82 49 68 64Z" fill="#fff"/>
+  <path d="M82 47h15M82 63h15M77 79h20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+</svg>

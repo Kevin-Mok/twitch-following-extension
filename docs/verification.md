@@ -73,3 +73,30 @@ Atomic fix: reproduce the CSS collision, strengthen the owned row selector, matc
 - Suggested commit: `fix: align Following heart with native sort icons`.
 
 The [tooling incident](postmortem/2026-10-21-memory-search-option.md) records lookup and sandbox limitations encountered during verification. Rollback: revert the two menu CSS rules and reload the extension and Twitch.
+
+## Release preparation 0.2.0 — 2026-10-21
+
+The runtime now uses Public-client device authorization and trusted session-only credentials, replacing the historical implicit callback/persistent-token setup described earlier in this record. No real Twitch application ID, consent or account-backed follow list was available.
+
+- Defining RED/GREEN fixtures cover device initiation, safe activation URLs including Twitch’s documented query parameters, polling intervals/slow-down/one in-flight request, malformed/denied/expired responses, session locality, legacy credential removal, and stale connect/disconnect/validation writes. Independent review’s two-setup-tab completion reproducer failed before its fix; later polls now return the valid current account without credentials.
+- Setup UI fixtures cover configured/developer setup, safe approval code/link, automatic polling/resume/cancel/expiry and actionable recovery. The live region avoids announcing the countdown every second.
+- Release fixtures cover deterministic ZIP generation, public-ID injection without source mutation, exact MIT license inclusion, local dependency closure, remote executable-reference rejection, unsafe archives and output-path/symlink restrictions.
+- First integration suite: 87 passed, 0 failed; syntax checks passed. Final integration suite after lifecycle fixes: **89 passed, 0 failed**, `npm run check` exit 0. The 19-file draft ZIP is 33,567 bytes, SHA256 `a61639f79e6c9a2f96d3c041c77d72a2c3aab927e4bebb835ebf1d3398aa2b64`; plain/default builds match byte for byte.
+- **Actual ZIP runtime:** `node scripts/verify-unpacked.mjs` loaded the inspected 0.2.0 draft source into a new temporary Chrome 156.0.8078.47 profile through DevTools’ extension loader. Real setup/status messaging reached Not connected; the developer-ID field was visible for the blank-ID draft, token absent in local/session storage, permissions exactly storage/alarms, and no popup configured. Bundled help/privacy images loaded.1280×800 light and 390×844 dark setup and narrow public pages had no horizontal overflow. Saved screenshots were visually inspected; no exceptions observed in inspected pages in this run; the script does not monitor service-worker exception events.
+- **Live Twitch:** the actual installed content script inserted exactly one flex Following row on the logged-out Fortnite page. Its icon size/left edge matched the native menu. A genuine 1280×800 capture is in `store-assets/screenshot-menu-1280x800.png`; visible cards are native recommendations, not authenticated follows. Local QA setup/help/privacy screenshots remain ignored under artifacts/.
+- Original icon sizes 16/32/48/128 and promo 440×280 were checked and visually inspected. The user explicitly chose MIT; source/license links and concrete safeguard descriptions appear in setup, help, privacy, README and listing copy. No independent audit/zero-risk claim is made.
+
+Browser verification requires Node 22+, Python3, unzip and a compatible Chrome with DevTools extension-loading support. Use `TWITCH_VERIFY_BROWSER` to select another executable, `--plain` for ASCII, and `--details` for raw failure diagnostics. It uses a disposable profile, never the user’s existing account, and writes only screenshots under artifacts/. Live Twitch availability is a dependency; no credentials are required for these logged-out checks. The script’s runtime assertions are its integration self-check.
+
+Working directory: repository root; no sudo. The direct browser command is:
+
+node scripts/verify-unpacked.mjs artifacts/twitch-following-0.2.0-draft.zip
+
+Expected example:
+```text
+Loaded actual ZIP source in isolated Chrome
+Real Twitch category menu contains exactly one aligned Following item; genuine screenshot captured.
+Real extension setup, bundled help/privacy, limited permissions and narrow/dark layouts passed; no exceptions observed in inspected pages.
+```
+
+Real OAuth interoperability, live follows/filter correctness, full assistive-technology/physical-input acceptance and actual store install/update remain unchecked. Those manual gates are preserved in `docs/chrome-web-store-release.md` and `docs/smoke-tests.md`.

@@ -1,1 +1,14 @@
-{"name":"twitch-following-extension","version":"0.1.0","private":true,"type":"module","scripts":{"test":"node --test","check":"node --check src/background.js && node --check src/content.js && node --check src/dom.js && node --check src/options.js"},"devDependencies":{"jsdom":"^25.0.1"}}
+{
+  "name": "twitch-following-extension",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/background.js && node --check src/auth.js && node --check src/config.js && node --check src/core.js && node --check src/content.js && node --check src/dom.js && node --check src/options.js && node --check scripts/verify-unpacked.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  },
+  "license": "MIT"
+}

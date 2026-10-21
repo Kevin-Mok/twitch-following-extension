@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Connect Twitch and find your live followed channels in the category you are browsing.">
+  <title>Help · Twitch Category Following</title>
+  <link rel="icon" href="icons/icon128.png">
+  <link rel="stylesheet" href="public.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="help.html"><img src="icons/icon128.png" alt="" width="36" height="36">Twitch Category Following</a>
+    <nav aria-label="Main"><a href="help.html" aria-current="page">Help</a><a href="privacy.html">Privacy</a><a href="https://github.com/Kevin-Mok/twitch-following-extension/issues">Support</a><a href="https://github.com/Kevin-Mok/twitch-following-extension">Source code</a></nav>
+  </header>
+  <main id="main">
+    <h1>Find your live follows.</h1>
+    <p class="intro">Connect your Twitch account, open a category, then choose Following to see your live followed channels sorted by viewers.</p>
+
+    <h2>Open source. Clear permissions.</h2>
+    <p>The code is public under the MIT license. <a href="https://github.com/Kevin-Mok/twitch-following-extension">Inspect it on GitHub</a> before you connect. It requests only Twitch access needed for Following, keeps credentials in browser-session memory, and has no analytics or publisher server. Open source makes the design inspectable; it is not a promise of zero risk.</p>
+
+    <h2>Connect once per browser session</h2>
+    <ol>
+      <li>Open Twitch Category Following from Chrome’s Extensions menu or its pinned toolbar icon.</li>
+      <li>Choose <strong>Connect Twitch</strong>. Open the Twitch authorization page shown in setup and enter the displayed code if requested.</li>
+      <li>Check the Twitch account and requested access, approve, then return to the setup tab. Keep that tab open until your connected login appears.</li>
+      <li>Refresh your Twitch tab. Open a category’s <strong>Live Channels</strong> tab and choose <strong>Sort by → Following</strong>.</li>
+    </ol>
+    <p>The extension uses the account you authorize, which can differ from the account signed in on the Twitch page. Regular releases include the application ID; you do not need to register a developer app.</p>
+    <div class="note"><p>For privacy, authorization stays in browser-session memory. Reconnect after restarting Chrome, reloading, updating or disabling the extension, or when authorization expires. It does not reconnect automatically.</p></div>
+
+    <h2>Use Following</h2>
+    <p>Choose Following again to refresh the live list. Supported language and tag filters apply to the loaded results. Choose any native sort to restore Twitch’s normal feed. This version supports the English Twitch interface and shows followed channels only.</p>
+
+    <h2>If something goes wrong</h2>
+    <p>No channels can mean none of your follows are live in that category. Check your filters and connected account. For connection errors, return to setup and reconnect; for network errors, retry when online. If Twitch’s layout changes, use a native sort and report the problem.</p>
+    <p>To disconnect, use <strong>Disconnect</strong> in setup. If offline, also revoke the app later in <a href="https://www.twitch.tv/settings/connections">Twitch Connections</a>. To remove it, open Chrome’s Extensions menu, choose Remove, then refresh Twitch.</p>
+
+    <h2>Using a development build?</h2>
+    <p>If setup asks for a public client ID, that build has no publisher application configured. Register your own <strong>Public</strong> application in the <a href="https://dev.twitch.tv/console/apps">Twitch developer console</a>, then paste its client ID. This build uses device authorization; it does not use an OAuth redirect callback. Never paste a client secret.</p>
+
+    <h2>Get support</h2>
+    <p><a href="https://github.com/Kevin-Mok/twitch-following-extension/issues">Report an issue on GitHub</a> with your Chrome version, category, theme and steps. Do not include passwords, authorization codes or tokens. Read the <a href="privacy.html">privacy policy</a> for data handling.</p>
+  </main>
+  <footer><a href="https://github.com/Kevin-Mok/twitch-following-extension">Open source on GitHub</a> · MIT licensed. Limited permissions, session-only credentials, no analytics. Independent project. Not affiliated with or endorsed by Twitch or Google.</footer>
+</body>
+</html>

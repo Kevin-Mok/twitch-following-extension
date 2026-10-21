@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How Twitch Category Following handles your Twitch authorization and followed-channel data.">
+  <title>Privacy · Twitch Category Following</title>
+  <link rel="icon" href="icons/icon128.png">
+  <link rel="stylesheet" href="public.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="help.html"><img src="icons/icon128.png" alt="" width="36" height="36">Twitch Category Following</a>
+    <nav aria-label="Main"><a href="help.html">Help</a><a href="privacy.html" aria-current="page">Privacy</a><a href="https://github.com/Kevin-Mok/twitch-following-extension/issues">Support</a><a href="https://github.com/Kevin-Mok/twitch-following-extension">Source code</a></nav>
+  </header>
+  <main id="main">
+    <h1>Your data, in this extension.</h1>
+    <p class="intro">Twitch Category Following uses your Twitch authorization to show live followed channels in the category you are browsing. It has no publisher backend, analytics or advertising.</p>
+    <p class="meta">Privacy policy · Effective October 21, 2026 · Publisher: Kevin Mok</p>
+
+    <h2>What it uses</h2>
+    <p>After you approve access on Twitch, the extension receives authorization to read your follows. It uses your Twitch user ID, login and authorization expiry, and retrieves live followed-channel details, including titles, viewer counts, tags, thumbnails and avatars.</p>
+    <p>It reads the current Twitch category and language/tag filters from the page, URL and Twitch’s saved filter settings to select matching channels. It does not collect general browsing history.</p>
+
+    <h2>Where data goes</h2>
+    <p>Authorization, validation and revocation requests go to <strong>id.twitch.tv</strong>. Followed-stream, category and channel requests go to <strong>api.twitch.tv</strong>. Images load from Twitch’s <strong>static-cdn.jtvnw.net</strong> image service. These requests expose ordinary connection information to Twitch, such as your IP address. Twitch handles its services under its <a href="https://www.twitch.tv/p/en/legal/privacy-notice/">privacy notice</a>.</p>
+    <p>Live results are held in memory and displayed on the Twitch page. The publisher does not receive this data through an extension-operated server, sell it, or use it for advertising.</p>
+
+    <h2>What stays on your device</h2>
+    <p>Your access token, connected account and pending authorization are kept in Chrome’s extension session memory, restricted to trusted extension contexts. They are cleared when Chrome restarts or the extension is reloaded, updated or disabled. No refresh token is saved. The public application client ID is saved locally until replaced or the extension is removed.</p>
+
+    <h2>Disconnect and remove</h2>
+    <p>Disconnect clears authorization and account data and attempts to revoke access with Twitch. If that request cannot complete, revoke it through <a href="https://www.twitch.tv/settings/connections">Twitch Connections</a>. Removing the extension deletes its local settings; refresh Twitch to remove displayed results.</p>
+
+    <h2>Questions and changes</h2>
+    <p>Contact the maintainer through <a href="https://github.com/Kevin-Mok/twitch-following-extension/issues">GitHub Issues</a>. Issues are public: never post credentials or private account information. Material changes to data handling will be reflected here and in the store disclosures. See <a href="help.html">Help</a> for connection and removal steps.</p>
+  </main>
+  <footer><a href="https://github.com/Kevin-Mok/twitch-following-extension">Open source on GitHub</a> · MIT licensed. Limited permissions, session-only credentials, no analytics. Independent project. Not affiliated with or endorsed by Twitch or Google.</footer>
+</body>
+</html>

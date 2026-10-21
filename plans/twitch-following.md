@@ -2,6 +2,8 @@
 
 Build a plain Manifest V3 extension with official authorized Helix retrieval, a safe Twitch DOM adapter, and a small connection surface. Verify pure behavior with fixtures and the unpacked runtime where available.
 
+Historical implementation record: version0.2.0 release preparation supersedes the original implicit OAuth/persistent-token setup described below. Current device authorization, session-only credentials, packaging and release gates are in [release-preparation.md](release-preparation.md).
+
 - [x] Capture live DOM and visual references; document supported selectors and filters.
 - [x] RED → GREEN pagination, validation, deduplication, sorting, filtering, avatar tests.
 - [x] Implement trusted worker OAuth, validation, request boundaries, account invalidation.

@@ -4,13 +4,13 @@ Load the unpacked extension, connect a registered public Twitch application, and
 
 ## Setup and authorization
 
-**Action:** Load this folder in `chrome://extensions`; inspect extension errors, open setup, copy the callback and register it exactly in a Public Twitch app. Connect using your own client ID.
+**Action:** Load the actual release package in `chrome://extensions`, inspect extension errors, and open setup via the toolbar icon. For a configured package, choose Connect Twitch without entering a client ID. For a source/draft build, enter your registered Public application’s client ID. Open Twitch’s activation URL/code, approve, and return to the setup tab.
 
-**Expected:** Setup displays the generated chromiumapp callback and connected login. No client secret or token appears in the popup, content-script messages, console, or page DOM. Token storage has TRUSTED_CONTEXTS access. A wrong registered callback/state fails safely. Browser cancellation permits retry.
+**Expected:** Setup shows the code and countdown, then the connected login. The source/MIT and privacy links work. No redirect callback or client secret is used. Bearer/device/refresh tokens never appear in setup/content messages, console or page DOM. Token/account/pending state live only in TRUSTED_CONTEXTS session storage; local storage contains only the public client ID. Cancel, denied/expired codes and network errors permit a new connection. Reopening setup resumes pending approval; two setup tabs converge after approval.
 
 **Action:** Disconnect while Following is loading, reconnect as another account, and retry. Revoke authorization in Twitch Connections and request a new snapshot. Restart Chrome and inspect hourly validation alarm.
 
-**Expected:** Old results cannot paint after the account changes. Local token/account clear on disconnect or 401. Delayed earlier operations cannot restore credentials or erase a newer connection. Setup offers reconnection. Validation runs on worker/browser startup and hourly. Offline revocation clears local credentials and can be completed manually in Twitch.
+**Expected:** Old results cannot paint after account changes. Session token/account clear on disconnect or 401; legacy persistent tokens are removed on upgrade. Delayed operations cannot restore credentials or erase a newer connection. Chrome restart and extension reload/update/disable require reconnect; public client ID remains. Validation runs when the worker starts and hourly while connected. Offline revocation clears session credentials and can be completed manually in Twitch.
 
 ## Menu, sorting, cards
 
@@ -53,3 +53,13 @@ Load the unpacked extension, connect a registered public Twitch application, and
 **Action:** Check following-only output and then restore the native recommendation sort.
 
 **Expected:** No recommendation tail is promised or synthesized. Native recommendations return when native sorting is restored. A future tail needs proof of native pagination/scrolling/rerendering/deduplication/order/restoration before inclusion.
+
+## Release package and store installation
+
+**Action:** Follow the [release guide](chrome-web-store-release.md), extract the exact candidate ZIP, and load the extracted folder unpacked in a fresh profile. Open setup and its help link, connect using the verified release OAuth configuration, and select Following then a native sort.
+
+**Expected:** Manifest is at the ZIP root; all runtime/icon/help references resolve. No development files or credentials are included. Setup works without prior extension storage, real followed cards appear, and native content returns. Device authorization uses the registered product’s public client ID; it does not rely on an extension-ID callback.
+
+**Action:** Install the approved test release from its store page in a clean profile, repeat the menu/account checks above, and test updating an existing installation of the same item.
+
+**Expected:** Store-installed authorization and native restoration pass independently of unpacked previews. The extension ID remains the same; stored settings and credentials are preserved or migrated according to the documented credential design, and any required reconnection is explained. Record the tested version and result before public launch.

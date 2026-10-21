@@ -1,63 +1,61 @@
 # Twitch Category Following
 
-A small Manifest V3 Chrome extension that helps viewers find their live follows in the category they are browsing, including channels missing from Twitch’s sidebar. It adds **Following** to category sorting, retrieves every page through Twitch’s official API, and orders matching channels by viewers. The native feed returns when another sort is selected.
+An open-source, MIT-licensed Chrome extension that helps viewers find their live follows in the category they are browsing, including channels missing from Twitch’s sidebar. It adds **Following** to category sorting, retrieves every page through Twitch’s official API, and orders matching channels by viewers. Choosing another sort restores Twitch’s native feed.
 
-**Status:** runnable following-only MVP. The unpacked extension, setup, injected menu, keyboard event handling, connection state, and native-sort restoration were checked in Chrome against live Twitch. Authorization and real followed-channel cards still need your registered application/account. See the [verification record](docs/verification.md) for precise evidence and limits.
+**Inspect before you connect:** [source code](https://github.com/Kevin-Mok/twitch-following-extension), [MIT license](LICENSE), [privacy policy](privacy.html), and [help](help.html). The extension uses limited Twitch access, keeps credentials in browser-session memory, and has no analytics, advertising, client secret, or publisher backend. These are inspectable design choices, not a guarantee of zero risk or an independent security certification.
+
+**Status:** version 0.2.0 is prepared for a publisher’s Public Twitch application and real-account acceptance. Device authorization, credential isolation, native restoration and archive generation have fixture coverage; the actual unpacked ZIP and logged-out Twitch menu were checked in isolated Chrome. No publisher client ID or real Twitch approval has been supplied, and nothing is published in the Chrome Web Store. See the [release guide](docs/chrome-web-store-release.md) for the remaining manual steps and [verification record](docs/verification.md) for evidence and limits.
 
 ## Tech Stack and Why Chosen
 
-- **Manifest V3 / Chrome identity:** browser-managed authorization callbacks and a service worker for authorized requests; no backend or client secret.
-- **Plain JavaScript, CSS, DOM APIs:** Twitch already supplies the visual language; small isolated adapters avoid React internals and production dependencies.
-- **Helix:** official follow membership, category IDs, and avatars, with complete cursor traversal and explicit failure handling.
-- **Node test runner + jsdom:** deterministic API, security, and DOM lifecycle fixtures; Chrome supplies the separate runtime check.
+- **Manifest V3:** a Chrome service worker owns authorization and API access; no backend or client secret.
+- **Plain JavaScript, CSS and DOM APIs:** Twitch supplies the visual language; small isolated adapters avoid React internals and production dependencies.
+- **Twitch device authorization and Helix:** a documented Public-client flow, official paginated follow membership, category IDs and avatars.
+- **Chrome session storage:** trusted extension contexts hold token/account/pending state in memory. Local storage holds only the public client ID; existing persistent credentials are cleared on upgrade.
+- **Node test runner + jsdom:** deterministic API, security, setup and DOM-lifecycle fixtures; Chrome supplies the separate runtime check.
+- **Python standard library:** deterministic allowlisted ZIP packaging, dependency inspection and public client-ID injection without source changes.
 
 ## Install and connect
 
-1. Clone or download [this repository](https://github.com/Kevin-Mok/twitch-following-extension). Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select its directory (the folder containing `manifest.json`).
-2. Open the extension’s toolbar popup or Details → Extension options. Copy the generated redirect URL.
-3. In the [Twitch developer console](https://dev.twitch.tv/console/apps), register an app with **Public** client type, a suitable application category, and that **exact** OAuth redirect URL, including its trailing slash. Never put a client secret in the extension. Twitch may require developer-account two-factor authentication.
-4. Paste the public client ID into the extension and choose **Connect Twitch**. Approve `user:read:follows` in Twitch’s authorization window. The setup shows the connected account.
-5. After local source changes, click **Reload (↻)** on the extension in `chrome://extensions`; there is no automatic reload watcher. After installation or extension reload, refresh the Twitch tab. Open a category’s **Live Channels** tab and select **Sort by → Following**. Choose another native sort to restore Twitch’s feed.
+1. Clone or download [the repository](https://github.com/Kevin-Mok/twitch-following-extension). In `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the folder containing `manifest.json`.
+2. Open the toolbar icon or **Extension options**. Setup opens in a persistent tab. A publisher-configured release needs only **Connect Twitch**. Source checkouts and draft ZIPs show a developer client-ID field until a public application ID is supplied.
+3. For a development build, register a **Public** Twitch application in the [developer console](https://dev.twitch.tv/console/apps) using your verified developer account/2FA. Enter its **public client ID**, never its secret. This device flow does not use an OAuth redirect callback; follow the [release guide](docs/chrome-web-store-release.md) if the registration form asks for one.
+4. Choose **Connect Twitch**, open the provided Twitch activation page and enter the displayed code if requested. Check the app/account and `user:read:follows` permission before approving, then return to setup. Keep the setup tab open until the connected login appears.
+5. Refresh Twitch, open a category’s **Live Channels** tab, and choose **Sort by → Following**. Choose a native sort to restore Twitch’s feed.
+6. After source changes, reload the extension in `chrome://extensions`, then refresh Twitch. There is no reload watcher. Authorization is session-only: reconnect after Chrome restart, extension reload/update/disable or token expiry. Refresh tokens are not saved.
 
-The callback has the form `https://<extension-id>.chromiumapp.org/`. Use the generated value, not this placeholder. An unpacked extension ID can change across installations or when its directory moves; update the Twitch app’s registered callback when that happens. A callback mismatch must be corrected in registration before retrying.
-
-Implicit OAuth has no refresh token. Use **Reconnect Twitch** after expiry, revocation, or a missing-scope error. Disconnect clears local authorization and attempts server-side revocation; if offline, revoke manually in Twitch’s Connections settings too. The Twitch site’s logged-in account can differ from the extension’s explicitly connected account.
+Disconnect clears account/authorization and attempts Twitch revocation. If offline, also revoke in Twitch Connections. The explicitly authorized account can differ from the account signed into the Twitch website. The previous implicit callback flow is no longer used. [User help](help.html) explains reconnection and removal.
 
 ## Usage and limits
 
-- Fetches every followed-stream page; any failed page fails the snapshot. No sidebar scraping or private API requests.
-- Twitch’s paginated lists change while being read. The extension processes every returned page and deduplicates, but cannot promise a single atomic view of all live follows. Select Following again for a new snapshot. See [Twitch’s pagination guide](https://dev.twitch.tv/docs/api/guide/).
-- Filters by category ID resolved through official Get Games, deduplicates by broadcaster ID, sorts numeric viewers descending, then channel login ascending. Avatars use batched Get Users requests.
-- Each Following selection/category change loads a fresh snapshot. Supported local filter changes reuse it; no periodic stream refresh. Select Following again or Retry to refresh.
-- The Following menu row has a monochrome heart icon and supports mouse and keyboard selection; selecting it closes the dropdown.
-- **Following-only MVP:** Twitch’s recommendation tail is omitted. Its scrolling, deduplication, and restoration acceptance gate could not be verified.
-- Menu support targets the English UI shown in the supplied screenshots. The observed `#browse-sort-drop-down` listbox, directory container, and Live Channels tab selectors are isolated in `src/dom.js`. Twitch DOM/localization changes may prevent attachment; compatibility failures preserve the native feed and explain the problem.
-- Live inspection confirmed tag URLs (`tl=English`) and persisted language codes (`languageDirectoryFilters`), including a closed language menu. Fixture-backed fallbacks also recognize `lang`/`language` URL values and removable tag chips. Unreadable active filters or unknown URL parameters show a limitation instead of an unfiltered list.
-- Languages use OR; selected stream tags use case-insensitive AND. Category tags visible beside the verified category heading apply to all its streams, since Helix omits them. Complete parity for every Twitch tag combination/localized page is not established; it remains a manual acceptance check.
-- Cards use Twitch theme variables, responsive thumbnails, viewer overlays, titles, channel links, avatars, and stream tags. No badges or fake controls. Renderer fixtures were inspected in both themes and reflowed from four to one columns across 1440/1280/768/390 px without grid overflow. Account-backed card/filter acceptance and the complete two-theme matrix remain manual.
-- Category navigation keeps Following and retrieves afresh; changing a native sort through history exits Following. Videos/Clips restore the native page. On return to Live Channels, select Following again.
+- Every returned followed-stream page is retrieved; any failed page fails the snapshot. No sidebar scraping or private APIs.
+- Twitch’s paginated lists can change during retrieval. The extension deduplicates returned broadcasters but cannot promise one atomic view of all live follows. Select Following again to refresh.
+- Category IDs are resolved through Get Games. Matching channels sort by numeric viewers descending, then login ascending; avatars use batched Get Users requests.
+- Supported filter changes reuse the current snapshot. Languages use OR; selected stream tags use case-insensitive AND. Unsupported/unreadable filters show a limitation instead of an unfiltered success. Full live/localized filter parity remains unverified.
+- **Following-only English UI:** no recommendation tail, periodic stream refresh, badges or invented controls. A monochrome heart matches the native menu’s icon alignment. Mouse and keyboard handlers restore native sorting.
+- Cards use Twitch theme variables and responsive layouts. Tests and renderer previews cover long titles, missing avatars and narrow widths; authenticated card comparisons remain manual.
+- Category navigation retrieves afresh. Videos/Clips and native sort changes restore Twitch’s page; choose Following again after returning to Live Channels. Twitch DOM changes may require adapter updates.
 
 ## Architecture and security
 
-`src/background.js` owns OAuth and every API request; `src/auth.js` validates callback state, identity, and sender/message boundaries. Tokens are stored in local extension storage restricted to trusted contexts. They are never included in content-script messages. User strings render with DOM text APIs. Requests have timeouts and safe error messages. Validation runs when the worker starts, on browser startup, and hourly. Account changes invalidate outstanding requests; short credential writes are serialized so delayed work cannot restore old credentials or erase a newer connection.
+`src/background.js` owns device authorization, token validation and every API request. Setup starts a device request and makes paced short polls, allowing the service worker to sleep between requests. Pending state, bearer token and account stay in trusted `chrome.storage.session`; only the public client ID is persistent. Expiry, disconnect, stale account work and malformed persisted data fail safely. The worker validates tokens at startup and hourly. No access/device/refresh token is returned to the content script or setup.
 
-`src/core.js` owns retrieval, validation, sorting, and avatar batching. `src/dom.js` contains Twitch-specific selectors/filter interpretation/card rendering; `src/content.js` handles menu lifecycle, request generations, and restoration. React internals are not used. Native grids are temporarily hidden, never deleted or moved.
+`src/auth.js` validates identity and sender/message boundaries. `src/core.js` owns retrieval, validation, sorting and avatar batching. `src/dom.js` isolates Twitch selectors/filter interpretation/card rendering. `src/content.js` handles menu lifecycle, request generations and restoration. User strings render with DOM text APIs; native grids are temporarily hidden, never deleted or moved.
 
-Permissions: `storage` for authorization, `identity` for the OAuth callback, `alarms` for required hourly token validation. Host access is limited to Twitch API/auth endpoints; the content script runs only on `www.twitch.tv`. No analytics or backend.
+Permissions: `storage` for public configuration and session authorization; `alarms` for hourly token validation. Host access is limited to Twitch API/auth endpoints, and the content script runs only on `www.twitch.tv`. There is no `identity`, `tabs`, or broad all-sites permission. Twitch CDN images load as data, not executable code. Review [the privacy policy](privacy.html) and [release disclosures](store-assets/listing.md) before distributing a changed build.
 
 ## Commands and verification
 
-Use Node 22 or newer. Install development dependencies with `npm ci`; jsdom is test-only. Run `npm test` and `npm run check`. There is no build step: Chrome loads the source files directly. `npm test` includes deterministic retrieval/auth/worker fixtures and simulated DOM lifecycle tests; simulated markup does **not** prove compatibility with current Twitch.
+Use Node 22+ and Python 3. Install test dependencies with `npm ci`; jsdom is test-only. Run `npm test` and `npm run check`. There is no JavaScript build step: Chrome loads the source directly. Fixtures do not prove real OAuth interoperability or live followed-channel correctness.
 
-See [the atomic plan](plans/twitch-following.md), [smoke checks](docs/smoke-tests.md), [verification record](docs/verification.md), and [saved implementation brief](prompts/twitch-following-extension.md). Use the three browser commands in the verification record to open setup/install, a category, and an alternative category. Manual registration and authorization require your own public client ID/account.
+The release tool is `python3 scripts/release.py`. Its `package` command creates an explicitly labeled development draft when no client ID is supplied. `package --client-id PUBLIC_ID` injects that public ID into the ZIP only; replace `PUBLIC_ID` with your registered application ID. `--out` selects a `.zip` destination (inside this repo it must be under ignored `artifacts/`). `inspect ZIP_PATH` validates an existing archive’s allowlist, manifest, local dependencies, icons and configuration. Both commands accept `--plain`. Packaging prints the path, size and SHA256; a configured archive still needs real OAuth and release acceptance.
 
-The browser launcher accepts `install`, `fortnite`, or `navigation`; `--plain` (or `CLI_PLAIN=1`) removes decorative emoji. It defaults to `google-chrome`; `TWITCH_VERIFY_BROWSER` can name another Chrome executable. The test and syntax-check commands have no project-specific options.
+The optional real-browser self-check `node scripts/verify-unpacked.mjs [ZIP_PATH]` loads an inspected archive into a temporary isolated Chrome profile, verifies setup/bundled pages/the logged-out Twitch menu, and saves screenshots under `artifacts/`. It requires Chrome, Python3 and unzip, accepts `--plain` and `--details`, and honors `TWITCH_VERIFY_BROWSER`. It uses no user account; live Twitch availability is required.
 
-Public source: [Kevin-Mok/twitch-following-extension](https://github.com/Kevin-Mok/twitch-following-extension). Publication and validation decisions are recorded in [the delivery plan](plans/publish-github.md).
+The browser launcher `./scripts/open-verification.sh` accepts `install`, `fortnite`, or `navigation`; `--plain` (or `CLI_PLAIN=1`) removes emojis. It defaults to `google-chrome`; `TWITCH_VERIFY_BROWSER` selects another executable. Test and syntax-check commands have no project-specific options.
 
-## Official references
+See the [release checklist](docs/chrome-web-store-release.md), [smoke checks](docs/smoke-tests.md), [verification evidence](docs/verification.md), [release implementation plan](plans/release-preparation.md), and [store listing/reviewer draft](store-assets/listing.md). The [initial implementation](plans/twitch-following.md) and [GitHub publication](plans/publish-github.md) retain their historical evidence; they are not evidence of Chrome Web Store publication.
 
-- [Get Followed Streams / API reference](https://dev.twitch.tv/docs/api/reference/#get-followed-streams)
-- [Implicit OAuth](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/)
-- [Required token validation](https://dev.twitch.tv/docs/authentication/validate-tokens/)
-- [Chrome identity callbacks](https://developer.chrome.com/docs/extensions/reference/api/identity)
+## License
+
+[MIT](LICENSE), copyright 2026 Kevin Mok. Independent project; not affiliated with or endorsed by Twitch or Google.

@@ -20,3 +20,9 @@ test('only extension setup can manage auth; content can request snapshots',()=>{
   assert.equal(allowedMessage({type:'snapshot',category:'x',token:'secret'},tab,id),false);
   assert.equal(allowedMessage({type:'snapshot',category:'x'},{...tab,id:'other'},id),false);
 });
+test('only setup can poll device authorization without extra message fields',()=>{
+ const page={id:'abc',url:'chrome-extension://abc/options.html'};const tab={id:'abc',url:'https://www.twitch.tv/directory',tab:{id:1}};
+ assert.equal(allowedMessage({type:'pollAuthorization'},page,'abc'),true);
+ assert.equal(allowedMessage({type:'pollAuthorization'},tab,'abc'),false);
+ assert.equal(allowedMessage({type:'pollAuthorization',deviceCode:'secret'},page,'abc'),false);
+});
