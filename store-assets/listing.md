@@ -59,7 +59,9 @@ No paid account is needed. Reviewers authorize their own Twitch account. Do not 
 
 - [ ] Register/configure the product’s Public Twitch application; provide its **public client ID** to the release packager. Do not publish the unconfigured development build.
 - [ ] Confirm the production package’s version, Git commit and ZIP; pass fresh automated and account-backed smoke checks.
-- [ ] Supply an accessible hosted help URL and privacy-policy URL for these exact bundled pages. Local extension URLs are insufficient as public listing links.
+- [x] Hosted help: https://kevin-mok.github.io/twitch-following-extension/help.html
+- [x] Hosted privacy policy: https://kevin-mok.github.io/twitch-following-extension/privacy.html
+- Both pages and their shared stylesheet/icon were anonymously fetched with HTTP 200 and matched committed source. Publisher review against the final configured build still applies.
 - [ ] Confirm support URL: `https://github.com/Kevin-Mok/twitch-following-extension/issues`; no support email has been invented.
 - [ ] Choose the closest current store category, English as listing language, regions, and initial private/unlisted visibility. Confirm account verification, required fee and applicable trader declarations in the dashboard.
 - [ ] Upload the packaged 128×128 icon, 440×280 promotional tile and at least one genuine screenshot (1280×800 or 640×400). Store screenshots remain outstanding until captured from the authenticated final build.

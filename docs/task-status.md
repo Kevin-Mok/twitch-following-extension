@@ -21,7 +21,7 @@ See `docs/verification.md` for the atomic steps, Cursor review prompt, automated
 - Milestone: `feat: prepare Chrome extension release`.
 - Completed: Public device authorization/session-only credentials, setup disclosure/progress, MIT/source links, original icons/promo, genuine menu screenshot, help/privacy pages, listing/reviewer copy, deterministic ZIP packaging and reusable isolated-Chrome checks.
 - Verified: 89 tests pass; syntax/README/package gates pass; actual draft/configured-fixture Chrome setup/pages/menu checks pass. Independent review findings corrected with defining regressions.
-- Delivery: push main to origin/main and serve help/privacy from enabled GitHub Pages; report actual SHA and hosting receipts in session output.
+- Delivery: `7d9b1bc` pushed to origin/main; public help/privacy/CSS/icon endpoints returned HTTP 200 and matched source. Follow-up milestone `docs: record published support pages` records the completed hosting checks; its SHA is reported in session output.
 - Remaining: register publisher Twitch app/public client ID, build configured candidate, complete real-account acceptance, then Chrome Web Store registration/payment/declarations/submission/review. No live token or store approval is claimed.
 - Scope: prior guide/docs plus directly observed implementation/companion files from this conversation; preserve external linux-config work. No unrelated local edits detected.
 - See [release plan](../plans/release-preparation.md), [manual release steps](chrome-web-store-release.md), and [verification evidence](verification.md).

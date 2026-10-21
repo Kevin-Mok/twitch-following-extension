@@ -100,3 +100,13 @@ Real extension setup, bundled help/privacy, limited permissions and narrow/dark 
 ```
 
 Real OAuth interoperability, live follows/filter correctness, full assistive-technology/physical-input acceptance and actual store install/update remain unchecked. Those manual gates are preserved in `docs/chrome-web-store-release.md` and `docs/smoke-tests.md`.
+
+## Public support-page deployment receipt — 2026-10-21
+
+Source release commit `7d9b1bc` was pushed to `origin/main`. GitHub Pages was enabled with main/root as its source. Anonymous HTTPS requests returned 200 for the help page, privacy policy, shared stylesheet and 128px icon; each response's SHA256 equaled the corresponding committed file. No user session/cookies were used.
+
+- Help: https://kevin-mok.github.io/twitch-following-extension/help.html
+- Privacy: https://kevin-mok.github.io/twitch-following-extension/privacy.html
+- Assets: `public.css` and `icons/icon128.png` under the same site root.
+
+Final release gate passed on the exact staged source. It initially rejected synthetic URL-userinfo test literals; equivalent URL construction preserved both security cases, with 40 worker tests passing, and the unchanged gate then passed. No scanner suppression was added. Full 89-test/syntax/package/runtime evidence remains above; no application behavior changed during the final fixture or deployment-receipt edits. Source worktree was clean and HEAD matched origin/main after the release push.
